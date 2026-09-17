@@ -24,11 +24,39 @@ the selection before claiming this model team is running. Do not present model
 roleplay as a switch or start a separate task to work around this requirement.
 
 Check the live spawn tool schema for the preferred worker role. Its configured
-model must be DeepSeek V4.1 Flash. If the role is unavailable, use another exposed
-role only when its configuration confirms that same model. An explicit model
-override is an option only when the current tool schema accepts the exact worker
-model. Do not substitute DeepSeek V4 Flash, V4 Pro, an inherited parent model, or
-another provider route silently. Report unavailable routing as a blocker.
+model must be DeepSeek V4.1 Flash. If the role is unavailable, use
+another exposed role only when its configuration confirms that same model.
+
+The `agent_type` list and the optional `model` override list are separate. A
+DeepSeek role can be available even when DeepSeek is absent from the `model`
+override list. In that case, select the pinned `agent_type` and OMIT `model` and
+`reasoning_effort`; do not pass a display name, model slug, or placeholder override.
+The role selects the model. Absence from the override list alone is not a blocker.
+
+For the collaboration schema shown below, always set `fork_turns: "none"` for
+these worker calls and include the necessary context in `message`. Do not omit
+`fork_turns` or use `"all"`: a full-history fork inherits the parent's model and
+reasoning effort. An explicit model override is a fallback only when no suitable
+pinned role is exposed and the live tool schema accepts the exact worker model.
+Do not substitute DeepSeek V4 Flash, V4 Pro, an inherited parent model, or another
+provider route silently. Report unavailable routing as a blocker only after
+checking available pinned roles and permitted overrides.
+
+### Spawn failures
+
+- Rejected `model` argument: reread the live schema and retry once using the
+  selected pinned role, `fork_turns: "none"`, and no model or reasoning override.
+- Unknown `agent_type`: inspect the exposed roles and their model configurations.
+  A file on disk is not proof that a running session has loaded the role. Refresh
+  the Router model catalog and reopen the Codex session if the role is missing;
+  do not invent a role name or retry the same unavailable role.
+- Provider HTTP 400, authentication, balance, or connection errors after an
+  accepted spawn: report the exact error and investigate the provider/router.
+  Changing the model argument cannot repair a provider tool-schema error.
+
+Verify that the worker completes a bounded task with a real tool call. When
+available, confirm the routed model in Router logs; worker self-identification
+and successful spawn creation alone do not establish successful execution.
 
 ## Orchestration
 
