@@ -1,0 +1,4 @@
+interface:
+  display_name: "Union Crew"
+  short_description: "Union Alpha leads DeepSeek V4.1 Flash workers"
+  default_prompt: "Use $union-crew to complete this task with Union Alpha coordinating DeepSeek V4.1 Flash subagents."
